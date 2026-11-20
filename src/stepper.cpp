@@ -1,7 +1,10 @@
 #include <simcore/stepper.h>
 
+#include <algorithm>
 #include <cstddef>
 #include <stdexcept>
+#include <tuple>
+#include <vector>
 
 namespace simcore {
 
@@ -31,14 +34,27 @@ void Stepper::step(double dt) {
     if (!(dt >= 0.0)) {
         throw std::invalid_argument("simcore::Stepper::step: dt must be non-negative");
     }
+
+    // Snapshot live slot indices before invoking user code. A spawn during an
+    // update joins the next step, even when it reuses an earlier free slot.
+    std::vector<std::size_t> update_order;
+    update_order.reserve(registry_->entity_count_);
+    for (const std::size_t index : registry_->order_) {
+        if (registry_->slots_[index].alive) {
+            update_order.push_back(index);
+        }
+    }
+    std::sort(update_order.begin(), update_order.end(), [this](std::size_t lhs, std::size_t rhs) {
+        const auto& left = registry_->slots_[lhs];
+        const auto& right = registry_->slots_[rhs];
+        return std::tie(left.priority, left.registration_order) <
+               std::tie(right.priority, right.registration_order);
+    });
+
     registry_->begin_iteration();
     try {
-        // Walk the registry's registration order rather than its slot storage:
-        // a slot recycled by spawn() after a despawn() must not make a newer
-        // entity update before an older one.
-        const std::size_t count = registry_->order_.size();
-        for (std::size_t position = 0; position < count; ++position) {
-            const Registry::Slot& slot = registry_->slots_[registry_->order_[position]];
+        for (const std::size_t index : update_order) {
+            const Registry::Slot& slot = registry_->slots_[index];
             if (!slot.alive) {
                 continue;
             }

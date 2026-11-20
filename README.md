@@ -48,6 +48,19 @@ generators such as Visual Studio place it under `build/examples/Release/`. API
 documentation is generated with `cmake --build build --target doc` into
 `build/docs/html`, then opened from `build/docs/html/index.html`.
 
+## Priority scheduling
+
+Use `registry.spawn_with_priority<T>(priority, args...)` to choose an entity's
+update priority. Lower numbers execute first, including negative priorities.
+Existing `spawn<T>(args...)` calls use priority zero. Equal priorities execute
+in registration order, including after deleted slots are reused.
+
+Build the project using the commands above, then run
+`./build/examples/simcore_priority_demo` (Windows MinGW:
+`.\build\examples\simcore_priority_demo.exe`). The example prints Sensor,
+Particle A, Particle B, then Render. The [usage guide](docs/guide.md#priority-scheduling)
+explains the API and update-time creation and deletion rules.
+
 ## Documentation
 
 - [Five-minute guide](docs/guide.md) — adding simcore to another project,
