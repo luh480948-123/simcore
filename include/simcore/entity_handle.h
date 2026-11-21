@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+#include <functional>
 #include <memory>
 #include <typeinfo>
 #include <utility>
@@ -58,8 +60,16 @@ public:
     /// @return Entity identifier.
     [[nodiscard]] EntityId id() const noexcept { return id_; }
 
+    /// @brief Compares handles by owning registry and entity identifier.
+    /// @return true when both handles refer to the same entity identity.
+    /// @note Identity and hashing remain stable after the entity is despawned.
+    friend bool operator==(const EntityHandle& lhs, const EntityHandle& rhs) noexcept {
+        return lhs.owner_ == rhs.owner_ && lhs.id_ == rhs.id_;
+    }
+
 private:
     friend class Registry;
+    friend struct std::hash<EntityHandle<T>>;
 
     /// @brief Builds a handle from an entity reference and an identifier.
     /// @param entity Weak reference to the type-erased entity.
@@ -74,3 +84,17 @@ private:
 };
 
 }  // namespace simcore
+
+namespace std {
+
+/// @brief Enables entity handles to be used as keys in unordered containers.
+template <class T>
+struct hash<simcore::EntityHandle<T>> {
+    std::size_t operator()(const simcore::EntityHandle<T>& handle) const noexcept {
+        const std::size_t owner = hash<const simcore::Registry*>{}(handle.owner_);
+        const std::size_t id = hash<simcore::EntityId>{}(handle.id_);
+        return owner ^ (id + 0x9e3779b9U + (owner << 6U) + (owner >> 2U));
+    }
+};
+
+}  // namespace std

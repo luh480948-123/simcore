@@ -3,6 +3,9 @@
 #include <gtest/gtest.h>
 
 #include <cstddef>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace {
@@ -136,4 +139,69 @@ TEST(RegistryTest, DespawnIsIdempotentForStaleHandles) {
     registry.despawn(handle);
     EXPECT_EQ(registry.entity_count(), 1U);
     EXPECT_TRUE(replacement.valid());
+}
+
+TEST(EntityHandleTest, EqualityTracksEntityIdentity) {
+    simcore::Registry registry;
+    auto handle = registry.spawn<TestParticle>(1);
+    const auto copy = handle;
+    auto other = registry.spawn<TestParticle>(2);
+    const simcore::EntityHandle<TestParticle> empty;
+    const simcore::EntityHandle<TestParticle> another_empty;
+
+    EXPECT_EQ(handle, copy);
+    EXPECT_NE(handle, other);
+    EXPECT_NE(handle, empty);
+    EXPECT_EQ(empty, another_empty);
+}
+
+TEST(EntityHandleTest, EqualityIncludesOwningRegistry) {
+    simcore::Registry first_registry;
+    simcore::Registry second_registry;
+    auto first = first_registry.spawn<TestParticle>(1);
+    auto second = second_registry.spawn<TestParticle>(1);
+
+    ASSERT_EQ(first.id(), second.id());
+    EXPECT_NE(first, second);
+}
+
+TEST(EntityHandleTest, HashRemainsStableAfterDespawn) {
+    using Handle = simcore::EntityHandle<TestParticle>;
+
+    simcore::Registry registry;
+    auto handle = registry.spawn<TestParticle>(1);
+    const auto copy = handle;
+    std::unordered_set<Handle> handles;
+    handles.insert(handle);
+    handles.insert(copy);
+    ASSERT_EQ(handles.size(), 1U);
+
+    const std::size_t original_hash = std::hash<Handle>{}(handle);
+    registry.despawn(handle);
+
+    EXPECT_FALSE(handle.valid());
+    EXPECT_EQ(std::hash<Handle>{}(handle), original_hash);
+    EXPECT_EQ(handles.count(handle), 1U);
+
+    auto replacement = registry.spawn<TestParticle>(2);
+    EXPECT_NE(handle, replacement);
+    EXPECT_EQ(handles.count(replacement), 0U);
+}
+
+TEST(EntityHandleTest, WorksAsUnorderedMapKey) {
+    using Handle = simcore::EntityHandle<TestParticle>;
+
+    simcore::Registry registry;
+    auto first = registry.spawn<TestParticle>(1);
+    auto second = registry.spawn<TestParticle>(2);
+    std::unordered_map<Handle, std::string> names;
+    names.emplace(first, "first");
+    names.emplace(second, "second");
+
+    const auto copy = first;
+    names[copy] = "updated";
+
+    EXPECT_EQ(names.size(), 2U);
+    EXPECT_EQ(names.at(first), "updated");
+    EXPECT_EQ(names.at(second), "second");
 }
