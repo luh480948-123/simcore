@@ -57,6 +57,7 @@ public:
 
     /// @brief Move assignment is disabled because handles keep a pointer to the owner.
     Registry& operator=(Registry&&) = delete;
+
     /// @brief Destroys all stored entities.
     ~Registry() = default;
 
@@ -104,6 +105,24 @@ public:
                       "concept. An entity type must provide a member function callable as "
                       "'void update(double dt)'.");
         return EntityHandle<T>{};
+    }
+
+    /// @brief Constructs an entity with an explicit update priority.
+    ///
+    /// Lower numbers run first; equal priorities run in registration order.
+    /// Ordinary spawn() calls use priority zero. The priority affects Stepper
+    /// updates; views continue to iterate in storage order.
+    ///
+    /// @tparam T Concrete entity type; must satisfy simcore::Entity.
+    /// @tparam Args Constructor argument types.
+    /// @param priority Update priority, including negative values.
+    /// @param args Arguments forwarded to T's constructor.
+    /// @return Typed handle to the new entity.
+    template <class T, class... Args>
+    EntityHandle<T> spawn_with_priority(int priority, Args&&... args) {
+        auto handle = spawn<T>(std::forward<Args>(args)...);
+        slots_[index_of(handle.id_)].priority = priority;
+        return handle;
     }
 
     /// @brief Requests destruction of an entity.
@@ -179,6 +198,8 @@ private:
         std::uint32_t generation{1};
         bool alive{false};
         std::size_t order_pos{0};
+        int priority{0};
+        std::uint64_t registration_order{0};
     };
 
     friend class Stepper;
@@ -212,8 +233,8 @@ private:
 
     /// @brief Stores an entity in a free slot or appends a new slot.
     ///
-    /// The entity becomes the newest registration, so it is visited last by the
-    /// next update pass even when it recycled the slot of an older entity.
+    /// The entity becomes the newest registration. Equal priorities use that
+    /// registration order even when it recycled the slot of an older entity.
     /// @param entity Entity to store.
     /// @return Identifier assigned to the stored entity.
     EntityId insert(std::shared_ptr<EntityBase> entity) {
@@ -229,6 +250,8 @@ private:
             recycled.alive = true;
         }
         Slot& slot = slots_[index];
+        slot.priority = 0;
+        slot.registration_order = next_registration_order_++;
         slot.order_pos = order_.size();
         order_.push_back(index);
         ++entity_count_;
@@ -299,6 +322,7 @@ private:
     EventBus events_{};
     std::size_t entity_count_{0};
     std::size_t iteration_depth_{0};
+    std::uint64_t next_registration_order_{0};
 };
 
 }  // namespace simcore

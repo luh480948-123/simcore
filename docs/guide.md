@@ -109,8 +109,48 @@ What to remember:
   traversal or update pass ends. It is safe to despawn the entity you are
   currently visiting.
 - `stepper.run(duration, step)` calls `update(dt)` on every live entity in
-  registration order, using `step` for each frame and the remainder for the
+  ascending priority order, with registration order breaking ties, using `step`
+  for each frame and the remainder for the
   final frame. `stepper.elapsed()` reports the accumulated simulated time.
+
+## Priority scheduling
+
+Use `spawn_with_priority<T>(priority, args...)` when one entity must update
+before another. The priority is separate from the arguments passed to the
+entity's constructor. Lower numbers run first, and ordinary `spawn()` uses zero.
+
+```cpp
+registry.spawn_with_priority<Drone>(10, 10.0, 2.0);
+registry.spawn_with_priority<Clock>(-10);
+stepper.step(0.1);  // Clock updates before Drone.
+```
+
+Entities with equal priorities update in registration order, even when a new
+entity reuses an older entity's storage slot. The priority is set at creation.
+Views retain their storage traversal order.
+
+The stepper captures live entities and their order at the start of each step.
+Entities spawned during an update receive their first update on the next step.
+An entity despawned before its scheduled turn is skipped, while destruction is
+deferred until active updates and view traversals finish. A failed update ends
+the active update pass and leaves elapsed time unchanged for that step.
+
+Scheduling scans S allocated slots and sorts L live entities, taking
+O(S + L log L) time and O(L) extra space per step. The runnable
+`examples/priority_demo.cpp` shows negative priorities, default priorities, and
+registration order for ties. After building, run
+`./build/examples/simcore_priority_demo` (Windows MinGW:
+`.\build\examples\simcore_priority_demo.exe`).
+
+Expected output:
+
+```text
+Priority order: lower numbers first; ties use registration order.
+Sensor (dt=0.10)
+Particle A (dt=0.10)
+Particle B (dt=0.10)
+Render (dt=0.10)
+```
 
 ## Step 3: add another entity type later
 

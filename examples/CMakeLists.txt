@@ -8,3 +8,11 @@ set_target_properties(simcore_demo PROPERTIES CXX_EXTENSIONS OFF)
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(simcore_demo PRIVATE -Wall -Wextra -Wpedantic)
 endif()
+
+add_executable(simcore_priority_demo priority_demo.cpp)
+target_link_libraries(simcore_priority_demo PRIVATE simcore::simcore)
+set_target_properties(simcore_priority_demo PROPERTIES CXX_EXTENSIONS OFF)
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(simcore_priority_demo PRIVATE -Wall -Wextra -Wpedantic)
+endif()
