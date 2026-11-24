@@ -23,7 +23,7 @@ if(NOT GTest_FOUND)
     FetchContent_MakeAvailable(googletest)
 endif()
 
-add_executable(simcore_tests registry_test.cpp stepper_test.cpp)
+add_executable(simcore_tests registry_test.cpp stepper_test.cpp event_bus_test.cpp)
 target_link_libraries(simcore_tests PRIVATE simcore::simcore GTest::gtest_main)
 target_compile_features(simcore_tests PRIVATE cxx_std_20)
 set_target_properties(simcore_tests PROPERTIES CXX_EXTENSIONS OFF)
@@ -33,7 +33,10 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 
 include(GoogleTest)
-gtest_discover_tests(simcore_tests)
+# PRE_TEST defers test discovery to ctest time. The default POST_BUILD mode runs
+# the freshly built test executable during the build, which fails on machines
+# whose security policy blocks executing newly compiled binaries.
+gtest_discover_tests(simcore_tests DISCOVERY_MODE PRE_TEST)
 
 # T5: the target is excluded from the normal build on purpose; ctest builds it
 # and requires the compilation to fail with the Entity concept diagnostic.

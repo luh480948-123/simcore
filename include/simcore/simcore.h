@@ -10,6 +10,7 @@
 
 #include <simcore/entity.h>
 #include <simcore/entity_handle.h>
+#include <simcore/event_bus.h>
 #include <simcore/registry.h>
 #include <simcore/stepper.h>
 #include <simcore/view.h>
