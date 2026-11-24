@@ -16,7 +16,7 @@ build, three commands configure, build, and test it:
 
 *(Slide 6. Run `simcore_demo`.)*
 
-The demo reports 1.50 simulated seconds in 9 fixed steps, and 8 out of 8 tests
+The demo reports 1.50 simulated seconds in 9 fixed steps, and 14 out of 14 tests
 pass.
 
 *(Slide 7. Add `thermometer.h`, then rebuild and run.)*

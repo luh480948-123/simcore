@@ -383,7 +383,7 @@ Hand-off (1:55-2:00):
    - Public headers in `include/`, non-template code in `src/`
 9. **Verification evidence - history, tests, docs**
    - Typed commits; each subject names one concern
-   - Eight ctest cases covering T1-T5, including a compile-failure test
+   - Fourteen ctest cases covering T1-T5 and the event bus, including a compile-failure test
    - `WARN_AS_ERROR` makes missing documentation fail the `doc` target
 10. **Wrap-up and Q&A**
     - Reusable core, documented API, tested behavior

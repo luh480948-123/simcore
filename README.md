@@ -8,6 +8,22 @@ threading, serialization, or scheduling policy inside the library. New entity
 types are written entirely in the consumer's own files; `simcore` does not need
 to be modified or recompiled.
 
+## Public API at a glance
+
+| API | Purpose |
+|---|---|
+| `Registry::spawn<T>(args...)` | Creates an entity of type `T` and returns an `EntityHandle<T>`. |
+| `Registry::view<T>()` | Iterates over all live entities of type `T`. |
+| `Registry::despawn(handle)` | Safely removes an entity, including during traversal. |
+| `Registry::spawn_many<T>(count, args...)` | Creates several entities of type `T` with identical constructor arguments. |
+| `Registry::despawn_all<T>()` | Safely removes every live entity of type `T`. |
+| `Registry::clear()` | Safely removes every live entity. |
+| `Registry::reserve(capacity)` | Preallocates registry storage for batch creation. |
+| `Registry::entity_count()` | Returns the number of currently live entities. |
+| `Stepper::step(dt)` | Advances every live entity by one time step. |
+| `Stepper::run(duration, fixed_step)` | Advances the simulation using fixed steps and a final remainder step if needed. |
+| `Stepper::elapsed()` | Returns the total simulated time advanced so far. |
+
 ## Build, test, run
 
 Pick the block for your platform. Both blocks perform the same three steps:
@@ -35,6 +51,27 @@ The example is built as `build/examples/simcore_demo`
 generators such as Visual Studio place it under `build/examples/Release/`. API
 documentation is generated with `cmake --build build --target doc` into
 `build/docs/html`, then opened from `build/docs/html/index.html`.
+
+## Priority scheduling
+
+Use `registry.spawn_with_priority<T>(priority, args...)` to choose an entity's
+update priority. Lower numbers execute first, including negative priorities.
+Existing `spawn<T>(args...)` calls use priority zero. Equal priorities execute
+in registration order, including after deleted slots are reused.
+
+Build the project using the commands above, then run
+`./build/examples/simcore_priority_demo` (Windows MinGW:
+`.\build\examples\simcore_priority_demo.exe`). The example prints Sensor,
+Particle A, Particle B, then Render. The [usage guide](docs/guide.md#priority-scheduling)
+explains the API and update-time creation and deletion rules.
+
+## Batch entity operations
+
+Use `registry.reserve(n)` before a known large batch, then create entities with
+`registry.spawn_many<T>(count, args...)`. Remove one exact type with
+`registry.despawn_all<T>()`, or remove all live entities with `registry.clear()`.
+After building, run `./build/examples/simcore_batch_demo` (Windows MinGW:
+`.\build\examples\simcore_batch_demo.exe`) to see batch creation and removal.
 
 ## Documentation
 
