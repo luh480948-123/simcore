@@ -99,6 +99,33 @@ elapsed=1.00 s altitude=12.00 m clock=1.00 s entities=2
 after despawn: entities=1
 ```
 
+## Batch entity operations
+
+Use the batch APIs when a simulation creates or removes many entities at once.
+`spawn_many()` gives every created entity the same constructor arguments, while
+`reserve()` reduces container reallocations before a known large batch.
+
+```cpp
+simcore::Registry registry;
+
+registry.reserve(1'000);
+auto particles = registry.spawn_many<Drone>(1'000, 10.0, 2.0);
+
+std::printf("entities=%zu\n", registry.entity_count());  // 1000
+std::size_t removed = registry.despawn_all<Drone>();
+std::printf("removed=%zu entities=%zu\n", removed, registry.entity_count());
+// removed=1000 entities=0
+```
+
+`despawn_all<T>()` removes only the exact type `T`; it leaves other entity
+types alive. `clear()` removes every live entity. Both functions follow the
+same deferred-destruction rule as `despawn(handle)`, so they remain safe when
+called during a view traversal or an update pass. Existing EventBus listeners
+and queued events are not changed by `clear()`.
+
+Use individual `spawn()` calls when entities need different constructor
+arguments or move-only construction data.
+
 What to remember:
 
 - `spawn<T>(args...)` constructs `T` in place and returns `EntityHandle<T>`,

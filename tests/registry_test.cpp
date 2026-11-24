@@ -141,6 +141,72 @@ TEST(RegistryTest, DespawnIsIdempotentForStaleHandles) {
     EXPECT_TRUE(replacement.valid());
 }
 
+TEST(RegistryTest, SpawnManyCreatesValidHandlesWithSharedArguments) {
+    simcore::Registry registry;
+    registry.reserve(1'000);
+
+    auto particles = registry.spawn_many<TestParticle>(1'000, 42);
+
+    ASSERT_EQ(particles.size(), 1'000U);
+    EXPECT_EQ(registry.entity_count(), 1'000U);
+    for (const auto& particle : particles) {
+        ASSERT_TRUE(particle.valid());
+        EXPECT_EQ(particle->id, 42);
+    }
+}
+
+TEST(RegistryTest, DespawnAllRemovesOnlyTheRequestedType) {
+    simcore::Registry registry;
+    auto particles = registry.spawn_many<TestParticle>(3, 7);
+    auto box = registry.spawn<TestBox>(2.0);
+
+    EXPECT_EQ(registry.despawn_all<TestParticle>(), 3U);
+    EXPECT_EQ(registry.entity_count(), 1U);
+    EXPECT_TRUE(box.valid());
+    for (const auto& particle : particles) {
+        EXPECT_FALSE(particle.valid());
+    }
+
+    std::size_t remaining_boxes = 0;
+    for (const auto& remaining : registry.view<TestBox>()) {
+        (void)remaining;
+        ++remaining_boxes;
+    }
+    EXPECT_EQ(remaining_boxes, 1U);
+}
+
+TEST(RegistryTest, ClearInvalidatesEveryHandle) {
+    simcore::Registry registry;
+    auto particle = registry.spawn<TestParticle>(1);
+    auto box = registry.spawn<TestBox>(3.0);
+
+    registry.clear();
+
+    EXPECT_EQ(registry.entity_count(), 0U);
+    EXPECT_FALSE(particle.valid());
+    EXPECT_FALSE(box.valid());
+}
+
+TEST(RegistryTest, DespawnAllDuringViewDefersStorageReleaseSafely) {
+    simcore::Registry registry;
+    auto particles = registry.spawn_many<TestParticle>(3, 9);
+
+    std::size_t visited = 0;
+    std::size_t removed = 0;
+    for (auto& particle : registry.view<TestParticle>()) {
+        (void)particle;
+        ++visited;
+        removed = registry.despawn_all<TestParticle>();
+    }
+
+    EXPECT_EQ(visited, 1U);
+    EXPECT_EQ(removed, 3U);
+    EXPECT_EQ(registry.entity_count(), 0U);
+    for (const auto& handle : particles) {
+        EXPECT_FALSE(handle.valid());
+    }
+}
+
 TEST(EntityHandleTest, EqualityTracksEntityIdentity) {
     simcore::Registry registry;
     auto handle = registry.spawn<TestParticle>(1);
