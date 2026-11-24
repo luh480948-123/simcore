@@ -107,6 +107,44 @@ public:
         return EntityHandle<T>{};
     }
 
+    /// @brief Constructs several entities of the same type with identical constructor arguments.
+    ///
+    /// The constructor arguments are copied for each entity. Use individual spawn() calls when
+    /// each entity needs distinct or move-only construction data.
+    ///
+    /// @tparam T Concrete entity type; must satisfy simcore::Entity.
+    /// @tparam Args Constructor argument types.
+    /// @param count Number of entities to construct.
+    /// @param args Constructor arguments copied into every entity.
+    /// @return Typed handles for the newly created entities, in creation order.
+    template <class T, class... Args>
+        requires Entity<T>
+    std::vector<EntityHandle<T>> spawn_many(std::size_t count, const Args&... args) {
+        static_assert(std::is_constructible_v<T, const Args&...>,
+                      "simcore::Registry::spawn_many<T>: T is not constructible from the "
+                      "arguments forwarded to spawn_many().");
+        std::vector<EntityHandle<T>> handles;
+        handles.reserve(count);
+        slots_.reserve(slots_.size() + count);
+        order_.reserve(order_.size() + count);
+        for (std::size_t index = 0; index < count; ++index) {
+            handles.push_back(spawn<T>(args...));
+        }
+        return handles;
+    }
+
+    /// @brief Rejects batch creation of a type that does not model simcore::Entity.
+    template <class T, class... Args>
+        requires(!Entity<T>)
+    std::vector<EntityHandle<T>> spawn_many([[maybe_unused]] std::size_t count,
+                                             [[maybe_unused]] const Args&... args) {
+        static_assert(Entity<T>,
+                      "simcore::Registry::spawn_many<T>: T does not satisfy the "
+                      "simcore::Entity concept. An entity type must provide a member function "
+                      "callable as 'void update(double dt)'.");
+        return {};
+    }
+
     /// @brief Constructs an entity with an explicit update priority.
     ///
     /// Lower numbers run first; equal priorities run in registration order.
@@ -155,6 +193,59 @@ public:
         --entity_count_;
         pending_.push_back(index);
         flush_if_idle();
+    }
+
+    /// @brief Requests destruction of every live entity whose exact type is T.
+    ///
+    /// Like despawn(), removal is immediately visible to view() and entity_count(), while
+    /// storage is released after the active update pass or view traversal ends.
+    ///
+    /// @tparam T Concrete entity type to remove.
+    /// @return Number of entities marked for removal.
+    template <class T>
+        requires Entity<T>
+    std::size_t despawn_all() {
+        std::size_t removed = 0;
+        for (std::size_t index = 0; index < slots_.size(); ++index) {
+            Slot& slot = slots_[index];
+            if (!slot_matches(index, typeid(T))) {
+                continue;
+            }
+            slot.alive = false;
+            --entity_count_;
+            pending_.push_back(index);
+            ++removed;
+        }
+        flush_if_idle();
+        return removed;
+    }
+
+    /// @brief Requests destruction of every live entity.
+    ///
+    /// This uses the same deferred-destruction policy as despawn(), so it is safe during an
+    /// active update pass or view traversal. It does not alter EventBus subscriptions or events.
+    void clear() {
+        for (std::size_t index = 0; index < slots_.size(); ++index) {
+            Slot& slot = slots_[index];
+            if (!slot.alive) {
+                continue;
+            }
+            slot.alive = false;
+            --entity_count_;
+            pending_.push_back(index);
+        }
+        flush_if_idle();
+    }
+
+    /// @brief Preallocates storage for at least the requested number of entity slots.
+    ///
+    /// This changes capacity only; it does not create entities or change entity_count().
+    /// @param entity_capacity Minimum total slot capacity to reserve.
+    void reserve(std::size_t entity_capacity) {
+        slots_.reserve(entity_capacity);
+        order_.reserve(entity_capacity);
+        free_slots_.reserve(entity_capacity);
+        pending_.reserve(entity_capacity);
     }
 
     /// @brief Creates a view over all live entities of type T.
