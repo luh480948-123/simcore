@@ -24,3 +24,11 @@ set_target_properties(simcore_batch_demo PROPERTIES CXX_EXTENSIONS OFF)
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(simcore_batch_demo PRIVATE -Wall -Wextra -Wpedantic)
 endif()
+
+add_executable(simcore_one_minute_demo one_minute_demo.cpp)
+target_link_libraries(simcore_one_minute_demo PRIVATE simcore::simcore)
+set_target_properties(simcore_one_minute_demo PROPERTIES CXX_EXTENSIONS OFF)
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(simcore_one_minute_demo PRIVATE -Wall -Wextra -Wpedantic)
+endif()

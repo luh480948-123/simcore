@@ -73,6 +73,22 @@ Use `registry.reserve(n)` before a known large batch, then create entities with
 After building, run `./build/examples/simcore_batch_demo` (Windows MinGW:
 `.\build\examples\simcore_batch_demo.exe`) to see batch creation and removal.
 
+## One-minute demo
+
+`examples/one_minute_demo.cpp` is the shortest end-to-end consumer: one file
+that declares its own `Thermometer` entity, then uses `spawn`, `view`,
+`despawn`, and `run`. It does not replace `simcore_demo` (the full particle and
+box scenario) or the priority and batch demos (which isolate those merged APIs).
+
+On Windows, from the repository root:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\examples\run_one_minute_demo.ps1
+```
+
+The script deletes `cmake-build-one-minute`, configures with tests disabled,
+builds only `simcore_one_minute_demo`, runs it, and prints the elapsed time.
+
 ## Documentation
 
 - [Five-minute guide](docs/guide.md) — adding simcore to another project,
