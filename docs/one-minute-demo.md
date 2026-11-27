@@ -22,23 +22,94 @@ the full `simcore_demo`, and it does not exercise the priority or batch APIs.
 | GoogleTest | Not required. The bundle contains no tests. |
 | C++ standard | C++20, set by the imported CMake target |
 
-PATH prerequisites, in this order before other entries:
+PATH is a list of directories, not a command. Add these two directories to PATH,
+with `C:\msys64\ucrt64\bin` first, for the current terminal window only:
 
-```text
-C:\msys64\ucrt64\bin
-<directory containing cmake.exe>
+- `C:\msys64\ucrt64\bin` supplies `g++.exe`, `mingw32-make.exe`, and the runtime
+  DLLs (`libstdc++-6.dll`, `libgcc_s_seh-1.dll`, `libwinpthread-1.dll`) needed to
+  run the produced `.exe`.
+- The folder that contains `cmake.exe`. The examples below use the standard
+  installer location `C:\Program Files\CMake\bin`. If your CMake is elsewhere,
+  find its folder first (see "If `where cmake` finds nothing" below), then use
+  that folder in place of `C:\Program Files\CMake\bin`.
+
+Do **not** type a directory path by itself. `cmd.exe` will try to run the
+directory as a program and fail with
+`'C:\msys64\ucrt64\bin' is not recognized as an internal or external command`
+(or `不是内部或外部命令` on a Chinese Windows).
+
+### cmd.exe: prepend the directories
+
+Paste this line exactly. It changes PATH only in the current `cmd.exe` window:
+
+```bat
+set PATH=C:\msys64\ucrt64\bin;C:\Program Files\CMake\bin;%PATH%
 ```
 
-`C:\msys64\ucrt64\bin` supplies `g++.exe`, `mingw32-make.exe`, and the runtime
-DLLs (`libstdc++-6.dll`, `libgcc_s_seh-1.dll`, `libwinpthread-1.dll`) needed to
-run the produced `.exe`. The CMake binary used during verification was a
-portable 3.30.5 copy; any installed CMake 3.20 or newer on PATH is equivalent.
+### PowerShell: prepend the directories
 
-Check the tools before building:
+Paste this line exactly. It changes PATH only in the current PowerShell window:
 
 ```powershell
-cmake --version    # cmake version 3.30.5
-g++ --version      # g++.exe (Rev9, Built by MSYS2 project) 15.2.0
+$env:Path = "C:\msys64\ucrt64\bin;C:\Program Files\CMake\bin;" + $env:Path
+```
+
+Both forms affect only the current window. A new window starts with the old
+PATH; run the line again there. To make the change permanent, edit the user or
+system environment variables through the Windows settings instead.
+
+### Verify the PATH entry
+
+In `cmd.exe`:
+
+```bat
+where g++
+where cmake
+```
+
+In PowerShell, use `where.exe`, because bare `where` is an alias for
+`Where-Object`:
+
+```powershell
+where.exe g++
+where.exe cmake
+```
+
+Expected result: one path per command and exit code 0, for example:
+
+```text
+C:\msys64\ucrt64\bin\g++.exe
+C:\Program Files\CMake\bin\cmake.exe
+```
+
+Your CMake line may show a different folder; the verification machine used a
+portable CMake directory. What matters is that each command prints a path and
+returns exit code 0.
+
+If `where cmake` finds nothing, search the usual install roots:
+
+```bat
+where /r "C:\Program Files" cmake.exe
+where /r "%LOCALAPPDATA%" cmake.exe
+```
+
+In PowerShell:
+
+```powershell
+where.exe /r "C:\Program Files" cmake.exe
+where.exe /r "$env:LOCALAPPDATA" cmake.exe
+```
+
+The recursive search can take a while. If it prints a path ending in
+`\CMake\bin\cmake.exe`, prepend that folder in the `set PATH` or `$env:Path`
+line above. CMake bundled with Visual Studio lives under
+`C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin`.
+
+Then check the versions:
+
+```powershell
+cmake --version
+g++ --version
 mingw32-make --version
 ```
 
@@ -1594,7 +1665,10 @@ from this document, not the repository working tree.
 
 | Symptom | Cause | Fix |
 | --- | --- | --- |
-| `cmake` is not recognized | CMake is not on PATH | Add the CMake `bin` directory to PATH, or call `cmake.exe` by full path |
+| `cmake` is not recognized | CMake is not on PATH | Add the folder that contains `cmake.exe` to PATH as in section 1, then re-run `where cmake` |
+| `'C:\msys64\ucrt64\bin' is not recognized as an internal or external command` (or `不是内部或外部命令`) | The directory path was typed as a command | Do not run the directory itself. Prepend it with `set PATH=...` in cmd or `$env:Path = ...` in PowerShell, as in section 1 |
+| `The syntax of the command is incorrect` (or `命令语法不正确`) | An angle-bracket placeholder was pasted literally instead of being replaced | Replace the whole placeholder with the real folder path, without `<` or `>`; use the exact line in section 1 and edit only the path |
+| `where` is not recognized, or it behaves unexpectedly in PowerShell | PowerShell aliases bare `where` to `Where-Object` | Use `where.exe g++` and `where.exe cmake` in PowerShell |
 | `CMake Error: No CMAKE_CXX_COMPILER could be found` | `g++` is not on PATH, or the wrong generator is selected | Add `C:\msys64\ucrt64\bin` to PATH and use `-G "MinGW Makefiles"` |
 | `mingw32-make` is not recognized | MSYS2 UCRT64 tools are not on PATH | Add `C:\msys64\ucrt64\bin` before other entries, or install the MinGW-w64 make package |
 | The `.exe` exits with a missing `libstdc++-6.dll` / `libgcc_s_seh-1.dll` | The runtime directory is not on PATH | Put `C:\msys64\ucrt64\bin` on PATH before running the executable |
