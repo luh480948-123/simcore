@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>simcore - Group Project Presentation</title>
+<style>
+    :root {
+        --ink: #1b2430;
+        --muted: #5b6776;
+        --line: #d7dee7;
+        --paper: #ffffff;
+        --canvas: #f4f6f8;
+        --navy: #111a24;
+        --accent: #0b5cad;
+        --accent-soft: #e8f0fa;
+        --green: #0a6b55;
+        --green-soft: #e6f3ef;
+        --amber: #8a5a00;
+        --amber-soft: #fbf2df;
+        --code: #101820;
+        --code-ink: #e8eef5;
+        --radius: 10px;
+        --shadow: 0 1px 2px rgba(17, 26, 36, 0.06), 0 8px 24px rgba(17, 26, 36, 0.05);
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        margin: 0;
+        background: var(--canvas);
+        color: var(--ink);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+    a {
+        color: var(--accent);
+        text-decoration: none;
+    }
+
+    a:hover,
+    a:focus {
+        text-decoration: underline;
+    }
+
+    code,
+    pre {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    .wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 24px;
+    }
+
+    header {
+        background: var(--navy);
+        color: #ffffff;
+        padding: 56px 0 36px;
+    }
+
+    header h1 {
+        margin: 0;
+        font-size: 44px;
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+    }
+
+    header .subtitle {
+        margin: 10px 0 0;
+        max-width: 760px;
+        color: #c5d0dc;
+        font-size: 19px;
+    }
+
+    .hero-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 24px;
+    }
+
+    .chip {
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 999px;
+        padding: 5px 12px;
+        color: #e6edf5;
+        font-size: 14px;
+    }
+
+    .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 26px;
+    }
+
+    .button {
+        display: inline-block;
+        border: 1px solid #ffffff;
+        border-radius: 8px;
+        padding: 9px 16px;
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .button.primary {
+        background: #ffffff;
+        color: var(--navy);
+    }
+
+    .button:hover {
+        text-decoration: none;
+        opacity: 0.88;
+    }
+
+    .toc {
+        background: var(--paper);
+        border-bottom: 1px solid var(--line);
+    }
+
+    .toc .wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 20px;
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+
+    .toc a {
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    main {
+        padding: 40px 0 64px;
+    }
+
+    section {
+        margin-bottom: 44px;
+    }
+
+    section h2 {
+        margin: 0 0 16px;
+        padding-left: 12px;
+        border-left: 4px solid var(--accent);
+        font-size: 27px;
+        line-height: 1.25;
+    }
+
+    section h3 {
+        margin: 22px 0 8px;
+        font-size: 19px;
+    }
+
+    p {
+        margin: 0 0 14px;
+    }
+
+    .lede {
+        max-width: 880px;
+        font-size: 17px;
+    }
+
+    .card {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 20px;
+    }
+
+    .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .muted {
+        color: var(--muted);
+    }
+
+    .small {
+        font-size: 14px;
+    }
+
+    .stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 18px;
+    }
+
+    .stat {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 16px;
+    }
+
+    .stat .num {
+        display: block;
+        color: var(--navy);
+        font-size: 26px;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+
+    .stat .label {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    .flow {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 10px;
+        align-items: stretch;
+    }
+
+    .node {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-top: 4px solid var(--accent);
+        border-radius: 8px;
+        padding: 14px;
+    }
+
+    .node h4 {
+        margin: 0 0 6px;
+        font-size: 15px;
+    }
+
+    .node p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.45;
+    }
+
+    .node.green {
+        border-top-color: var(--green);
+    }
+
+    .node.amber {
+        border-top-color: var(--amber);
+    }
+
+    ul {
+        margin: 0 0 14px;
+        padding-left: 22px;
+    }
+
+    li {
+        margin-bottom: 7px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        overflow: hidden;
+    }
+
+    th,
+    td {
+        padding: 11px 13px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+    }
+
+    th {
+        background: #eef2f6;
+        color: #33414f;
+        font-size: 14px;
+    }
+
+    tr:last-child td {
+        border-bottom: 0;
+    }
+
+    td.role {
+        color: var(--muted);
+    }
+
+    .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+        font-size: 14px;
+    }
+
+    pre {
+        margin: 0 0 14px;
+        padding: 16px 18px;
+        overflow-x: auto;
+        background: var(--code);
+        color: var(--code-ink);
+        border-radius: 8px;
+        font-size: 14px;
+        line-height: 1.55;
+    }
+
+    pre code {
+        font-size: inherit;
+    }
+
+    .inline-code {
+        background: #eef2f6;
+        border: 1px solid var(--line);
+        border-radius: 5px;
+        padding: 1px 5px;
+        font-size: 14px;
+    }
+
+    .links {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .link-card {
+        display: block;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px 16px;
+    }
+
+    .link-card:hover {
+        border-color: var(--accent);
+        text-decoration: none;
+    }
+
+    .link-card strong {
+        display: block;
+        margin-bottom: 3px;
+    }
+
+    .link-card span {
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    .note {
+        border-left: 4px solid var(--amber);
+        background: var(--amber-soft);
+        border-radius: 0 8px 8px 0;
+        padding: 14px 16px;
+    }
+
+    .note strong {
+        color: var(--amber);
+    }
+
+    .ok {
+        color: var(--green);
+        font-weight: 600;
+    }
+
+    footer {
+        border-top: 1px solid var(--line);
+        background: var(--paper);
+        padding: 22px 0;
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    footer .wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 24px;
+        justify-content: space-between;
+    }
+
+    @media (max-width: 860px) {
+        .stats,
+        .grid-2,
+        .grid-3,
+        .links {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .flow {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 560px) {
+        header h1 {
+            font-size: 34px;
+        }
+
+        .stats,
+        .grid-2,
+        .grid-3,
+        .links,
+        .flow {
+            grid-template-columns: 1fr;
+        }
+
+        th,
+        td {
+            padding: 9px 10px;
+        }
+    }
+</style>
+</head>
+<body>
+
+<header>
+    <div class="wrap">
+        <h1>simcore</h1>
+        <p class="subtitle">A reusable, domain-agnostic discrete-time simulation core in C++20. This page collects the project documentation, measured results, and presentation materials.</p>
+        <div class="hero-meta">
+            <span class="chip">C++20</span>
+            <span class="chip">36/36 tests passing</span>
+            <span class="chip">6 contributors</span>
+            <span class="chip">6 merged pull requests</span>
+        </div>
+        <div class="hero-actions">
+            <a class="button primary" href="https://github.com/luh480948-123/simcore">Repository on GitHub</a>
+            <a class="button" href="#quick-start">Build and test</a>
+            <a class="button" href="#materials">Demo materials</a>
+        </div>
+    </div>
+</header>
+
+<nav class="toc" aria-label="Page sections">
+    <div class="wrap">
+        <a href="#overview">Overview</a>
+        <a href="#team">Team</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#quick-start">Quick start</a>
+        <a href="#verification">Verification</a>
+        <a href="#materials">Demo materials</a>
+        <a href="#documentation">Documentation</a>
+        <a href="#limitations">Known limitations</a>
+    </div>
+</nav>
+
+<main class="wrap">
+
+    <section id="overview">
+        <h2>Project overview</h2>
+        <p class="lede">simcore owns a heterogeneous set of simulation entities, advances simulated time in fixed steps, and lets callers iterate entities by concrete type. It is a library, not an application: it does not define what a particle, sensor, or vehicle is, and it does not provide rendering, networking, persistence, or domain rules. A consumer supplies entity types with a single <code class="mono">void update(double dt)</code> member, links the library, and keeps its simulation code in its own files. The repository includes several consumers, a test suite, and documentation, but the core remains independent of any one simulation.</p>
+    </section>
+
+    <section id="team">
+        <h2>Team and roles</h2>
+        <p>The work is recorded under six contributor identities. Commit counts below are from <code class="mono">git shortlog -sne</code> at commit <code class="mono">d0fb526</code> and total 44 commits.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Contributor</th>
+                    <th>Role in the repository</th>
+                    <th>Commits</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="mono">luh480948</td>
+                    <td class="role">Core registry, typed views, fixed-step stepper, CMake, test and documentation infrastructure, one-minute demo and submission material.</td>
+                    <td>20</td>
+                </tr>
+                <tr>
+                    <td class="mono">Iamnotokwith</td>
+                    <td class="role">Type-safe event bus, integration fixes, test discovery and update-order corrections.</td>
+                    <td>9</td>
+                </tr>
+                <tr>
+                    <td class="mono">wwpily</td>
+                    <td class="role">Entity-handle identity and hashing, contribution record, and the current group presentation deck.</td>
+                    <td>8</td>
+                </tr>
+                <tr>
+                    <td class="mono">elaine030201-droid</td>
+                    <td class="role">Batch registry operations and README updates.</td>
+                    <td>3</td>
+                </tr>
+                <tr>
+                    <td class="mono">isabella271257zhang</td>
+                    <td class="role">Priority-based entity scheduling.</td>
+                    <td>2</td>
+                </tr>
+                <tr>
+                    <td class="mono">chenqiren123</td>
+                    <td class="role">Fixed-step accumulator behavior.</td>
+                    <td>2</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section id="architecture">
+        <h2>Architecture at a glance</h2>
+        <p>Entities are stored behind a type-erased base, while the public API remains typed. Updates are deterministic, removal is deferred until the active pass ends, and events are delivered after all entities have run for a step.</p>
+
+        <div class="flow">
+            <div class="node">
+                <h4>Consumer types</h4>
+                <p>User-defined structs such as Particle and Thermometer. The only requirement is <code class="mono">update(double)</code>.</p>
+            </div>
+            <div class="node">
+                <h4>Registry</h4>
+                <p>Heterogeneous slots, type-erased ownership, generation-tagged IDs, deferred despawn, and typed views.</p>
+            </div>
+            <div class="node green">
+                <h4>Stepper</h4>
+                <p>Fixed-step <code class="mono">run</code> and <code class="mono">step</code>, priority order, final remainder, event dispatch.</p>
+            </div>
+            <div class="node amber">
+                <h4>View of T</h4>
+                <p>Slot-index traversal, exact type filter, O(N) in total slots, safe during deferred removal.</p>
+            </div>
+            <div class="node">
+                <h4>EventBus</h4>
+                <p>Typed subscribe and publish. Delivery is queued and happens at the end of a step.</p>
+            </div>
+        </div>
+
+        <div class="grid-2" style="margin-top: 18px;">
+            <div class="card">
+                <h3>Lifetime and safety</h3>
+                <ul>
+                    <li><code class="mono">EntityHandle&lt;T&gt;</code> stores a weak reference, the owning registry, and a packed index plus generation ID.</li>
+                    <li>A stale handle resolves to null after its slot is released, and a mismatched type is rejected by a runtime type check.</li>
+                    <li><code class="mono">despawn</code> marks the entity dead immediately but releases storage only when the current update pass or view traversal ends.</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Execution model</h3>
+                <ul>
+                    <li>One registry is single-threaded and not thread-safe; all access happens on one thread.</li>
+                    <li>Lower priority numbers update first; equal priorities keep registration order.</li>
+                    <li>Events published during a step are delivered after every entity has updated.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section id="quick-start">
+        <h2>Quick start</h2>
+        <p>The Windows MinGW configuration is the one verified in this repository. From the repository root, use these three commands:</p>
+        <pre><code>cmake -S . -B build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
+ctest --test-dir build -C Release --output-on-failure</code></pre>
+        <p class="small muted">The README also contains a Linux and macOS block. Only the Windows block above was executed for the measurements on this page. The demo is <code class="mono">build\examples\simcore_demo.exe</code> on Windows.</p>
+    </section>
+
+    <section id="verification">
+        <h2>Verification results</h2>
+        <p>Measured on a fresh clone of commit <code class="mono">d0fb526</code>, Windows 11, CMake 3.30.5, and MinGW-w64 GCC 15.2.0. The build produced no warning or error lines.</p>
+
+        <div class="stats">
+            <div class="stat">
+                <span class="num">36/36</span>
+                <span class="label">ctest cases passing</span>
+            </div>
+            <div class="stat">
+                <span class="num">0</span>
+                <span class="label">build warnings and errors</span>
+            </div>
+            <div class="stat">
+                <span class="num">40.94 s</span>
+                <span class="label">configure, clean clone</span>
+            </div>
+            <div class="stat">
+                <span class="num">126.03 s</span>
+                <span class="label">build, clean clone</span>
+            </div>
+            <div class="stat">
+                <span class="num">10.70 s</span>
+                <span class="label">ctest, clean clone</span>
+            </div>
+            <div class="stat">
+                <span class="num">44</span>
+                <span class="label">commits at the linked snapshot</span>
+            </div>
+            <div class="stat">
+                <span class="num">6</span>
+                <span class="label">merged pull requests</span>
+            </div>
+            <div class="stat">
+                <span class="num">6</span>
+                <span class="label">contributor identities</span>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="card">
+                <h3>What the 36 cases cover</h3>
+                <ul>
+                    <li>17 stepper cases: fixed steps, final remainder, explicit steps, accumulator behavior, priority order, and deferred self-despawn.</li>
+                    <li>8 registry cases: coexisting types, despawn during traversal, stale-handle idempotence, batch creation, and batch removal.</li>
+                    <li>4 entity-handle cases: identity, owning-registry equality, stable hashing, and use as an unordered-map key.</li>
+                    <li>6 event-bus cases: deferred delivery, type filtering, listener order, unsubscribe, and listener-published events.</li>
+                    <li>1 compile-failure case: a type without <code class="mono">update(double)</code> must be rejected by the Entity concept.</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Particle demo output</h3>
+                <pre><code>simcore particle demo
+---------------------
+after spawning             | elapsed= 0.00 s | entities=6
+after run(1.0, 0.3)        | elapsed= 1.00 s | entities=6
+removed 2 expired particles during view traversal
+after cleanup              | elapsed= 1.00 s | entities=4
+after run(0.5, 0.1)        | elapsed= 1.50 s | entities=4
+---------------------
+simulated time : 1.50 s in 9 fixed steps
+particles alive: 3 (removed 2)
+inside box now : 3
+farthest |x|   : 1.75 (half width 5.0)</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <section id="materials">
+        <h2>Demo materials</h2>
+        <p>These files are part of the repository. Open them from this page or from a local copy of the repository.</p>
+        <div class="links">
+            <a class="link-card" href="docs/Group10_simcore_Presentation.pptx">
+                <strong>Current group presentation (PPTX)</strong>
+                <span>15 slides with the current test count. This exceeds D8's 10-slide limit.</span>
+            </a>
+            <a class="link-card" href="docs/slides.pptx">
+                <strong>Original 10-slide deck (PPTX)</strong>
+                <span>Meets the 10-slide length, but its test counts predate the current 36-case suite.</span>
+            </a>
+            <a class="link-card" href="docs/demo-script.md">
+                <strong>Classroom demo script</strong>
+                <span>Three timed segments, live entity addition, Q&amp;A preparation.</span>
+            </a>
+            <a class="link-card" href="docs/demo-steps.md">
+                <strong>Executable demo checklist</strong>
+                <span>Commands, expected output, timings, failure handling, and reset steps.</span>
+            </a>
+            <a class="link-card" href="docs/speech.md">
+                <strong>One-minute speech</strong>
+                <span>Short spoken overview. It predates the merged test suite.</span>
+            </a>
+            <a class="link-card" href="docs/one-minute-demo.md">
+                <strong>Self-contained one-minute bundle</strong>
+                <span>Environment, complete source, build steps, expected output, and an external clean-directory check.</span>
+            </a>
+        </div>
+    </section>
+
+    <section id="documentation">
+        <h2>Documentation</h2>
+        <div class="links">
+            <a class="link-card" href="README.md">
+                <strong>README</strong>
+                <span>Positioning, public API, build commands, requirements, and repository layout.</span>
+            </a>
+            <a class="link-card" href="docs/guide.md">
+                <strong>Five-minute integration guide</strong>
+                <span>Adding simcore to another project, writing a first entity, and fixing common compile errors.</span>
+            </a>
+            <a class="link-card" href="docs/requirements-en.html">
+                <strong>Project requirements (English)</strong>
+                <span>Translated course requirements used for the deliverable checklist.</span>
+            </a>
+            <a class="link-card" href="docs/qa.md">
+                <strong>Defense Q&amp;A</strong>
+                <span>Twenty-four reviewer questions with file, line, command, and measured evidence.</span>
+            </a>
+        </div>
+    </section>
+
+    <section id="limitations">
+        <h2>Known limitations</h2>
+        <div class="note" style="margin-bottom: 16px;">
+            <strong>Documentation build:</strong> <code class="mono">cmake --build build --target doc</code> currently exits with an error at <code class="mono">include/simcore/registry.h:136</code>. The non-Entity overload of <code class="mono">spawn_many</code> lacks <code class="mono">@param</code> and <code class="mono">@return</code> tags, so Doxygen's strict mode stops before writing <code class="mono">build/docs/html/index.html</code>. The fix is to document that overload; library behavior is unaffected.
+        </div>
+        <ul>
+            <li><strong>Packaging:</strong> consumers use <code class="mono">add_subdirectory</code> and link <code class="mono">simcore::simcore</code>. There are no install or export rules, so <code class="mono">find_package(simcore)</code> is not supported yet.</li>
+            <li><strong>Team process:</strong> only three of six contributors reach 8 commits, only one contributor reaches 2 pull requests, and no pull request has a review from another person. The commit span is 10 days (2026-11-17 to 2026-11-27), below the rubric's 70% target for the eight-week example.</li>
+            <li><strong>Stale supporting material:</strong> <code class="mono">docs/slides.pptx</code> and <code class="mono">docs/speech.md</code> predate the 36-case suite. Use <code class="mono">docs/Group10_simcore_Presentation.pptx</code>, this page, and <code class="mono">docs/qa.md</code> for current numbers.</li>
+            <li><strong>Presentation length:</strong> D8 asks for at most 10 slides. The current group deck has 15 slides, while the original 10-slide deck predates the current test suite. The group must trim the current deck or refresh the 10-slide deck before submission.</li>
+            <li><strong>Threading:</strong> a Registry and its EventBus are single-threaded and not thread-safe. Separate registries can be used on separate threads, but one registry must not be shared concurrently.</li>
+            <li><strong>Platform coverage:</strong> only the Windows MinGW build was executed for the measurements here. The Linux and macOS command block in the README has not been verified in this environment.</li>
+            <li><strong>Live demonstration:</strong> the live entity-addition sequence is scripted and rehearsed, but the classroom run is the remaining step.</li>
+        </ul>
+        <p class="small muted">The GitHub repository link requires network access. Every other link on this page is relative to the repository root and works from a local copy.</p>
+    </section>
+
+</main>
+
+<footer>
+    <div class="wrap">
+        <span>simcore group project - static presentation page</span>
+        <span>Snapshot: <code class="mono">d0fb526</code> - 2026-11-27</span>
+    </div>
+</footer>
+
+</body>
+</html>
