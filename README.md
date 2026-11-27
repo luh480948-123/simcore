@@ -91,11 +91,11 @@ builds only `simcore_one_minute_demo`, runs it, and prints the elapsed time.
 
 ## Documentation
 
-- [Five-minute guide](docs/guide.md) — adding simcore to another project,
+- [Five-minute guide](docs/guide.md) - adding simcore to another project,
   writing a first entity, and fixing common compile errors.
-- [Classroom demo script](docs/demo-script.md) — timed narration, live entity
+- [Classroom demo script](docs/demo-script.md) - timed narration, live entity
   addition, Q&A preparation, and the slide outline.
-- API reference — generated from the public headers by Doxygen; see
+- API reference - generated from the public headers by Doxygen; see
   [docs/Doxyfile](docs/Doxyfile). The generated HTML is not committed.
 
 ## Requirements
@@ -109,14 +109,14 @@ builds only `simcore_one_minute_demo`, runs it, and prints the elapsed time.
 
 ```
 simcore/
-├── CMakeLists.txt        # library target simcore::simcore, doc target, test wiring
-├── include/simcore/      # public headers; simcore.h exposes the whole API
-├── src/                  # non-template library implementation
-├── examples/             # particle_demo.cpp and the simcore_demo target
-├── tests/                # GoogleTest suites and the compile-failure check
-└── docs/                 # guide.md, demo-script.md and Doxyfile
+|-- CMakeLists.txt        # library target simcore::simcore, doc target, test wiring
+|-- include/simcore/      # public headers; simcore.h exposes the whole API
+|-- src/                  # non-template library implementation
+|-- examples/             # particle_demo.cpp and the simcore_demo target
+|-- tests/                # GoogleTest suites and the compile-failure check
+`-- docs/                 # guide.md, demo-script.md and Doxyfile
 ```
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT - see [LICENSE](LICENSE).

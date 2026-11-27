@@ -1,6 +1,6 @@
 # simcore one-minute speech script
 
-**Start 0:00 · 1:00**
+**Start 0:00 - 1:00**
 
 *(Slide 1.)*
 

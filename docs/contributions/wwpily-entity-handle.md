@@ -5,7 +5,7 @@
 - GitHub: [`wwpily`](https://github.com/wwpily)
 - Repository: [`luh480948-123/simcore`](https://github.com/luh480948-123/simcore)
 - Implementation branch: `feature/entity-handle-hash`
-- Pull request: [#2 — Add entity handle equality and hash support](https://github.com/luh480948-123/simcore/pull/2)
+- Pull request: [#2 - Add entity handle equality and hash support](https://github.com/luh480948-123/simcore/pull/2)
 - Merge commit: [`0850705`](https://github.com/luh480948-123/simcore/commit/085070518cfc4896818efd03245dc32d8d42818e)
 - Date: 2026-11-21
 

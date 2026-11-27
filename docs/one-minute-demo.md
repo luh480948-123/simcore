@@ -51,20 +51,20 @@ was not measured here.
 
 ```text
 one-minute-bundle/
-鈹溾攢鈹€ CMakeLists.txt
-鈹溾攢鈹€ include/
-鈹?  鈹斺攢鈹€ simcore/
-鈹?      鈹溾攢鈹€ simcore.h
-鈹?      鈹溾攢鈹€ entity.h
-鈹?      鈹溾攢鈹€ entity_handle.h
-鈹?      鈹溾攢鈹€ event_bus.h
-鈹?      鈹溾攢鈹€ registry.h
-鈹?      鈹溾攢鈹€ view.h
-鈹?      鈹斺攢鈹€ stepper.h
-鈹溾攢鈹€ src/
-鈹?  鈹斺攢鈹€ stepper.cpp
-鈹斺攢鈹€ examples/
-    鈹斺攢鈹€ one_minute_demo.cpp
+|-- CMakeLists.txt
+|-- include/
+|   `-- simcore/
+|       |-- simcore.h
+|       |-- entity.h
+|       |-- entity_handle.h
+|       |-- event_bus.h
+|       |-- registry.h
+|       |-- view.h
+|       `-- stepper.h
+|-- src/
+|   `-- stepper.cpp
+`-- examples/
+    `-- one_minute_demo.cpp
 ```
 
 | File | Role | Required? |
